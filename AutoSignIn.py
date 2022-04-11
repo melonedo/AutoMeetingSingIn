@@ -6,6 +6,7 @@ import cv2
 import pyperclip
 import json
 
+
 class TemplateMatchFailed(Exception):
     pass
 
@@ -16,7 +17,8 @@ def locateTemplate(template, debug=False, mask=None):
     img_template = cv2.imread(template)
     img_mask = None if mask is None else cv2.imread(mask)
     h, w = img_template.shape[0:2]
-    res = cv2.matchTemplate(gray, img_template, cv2.TM_SQDIFF_NORMED, mask=img_mask)
+    res = cv2.matchTemplate(
+        gray, img_template, cv2.TM_SQDIFF_NORMED, mask=img_mask)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
     top = min_loc[0]
     left = min_loc[1]
@@ -25,11 +27,12 @@ def locateTemplate(template, debug=False, mask=None):
     bottom_right = (top_left[0] + w, top_left[1] + h)
 
     if debug:
-        img = cv2.imread("screen.png",1)
+        img = cv2.imread("screen.png", 1)
         os.remove("screen.png")
-        cv2.rectangle(img,top_left, bottom_right, (0,0,255), 2)
-        img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_NEAREST)
-        cv2.imshow("processed",img)
+        cv2.rectangle(img, top_left, bottom_right, (0, 0, 255), 2)
+        img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5,
+                         interpolation=cv2.INTER_NEAREST)
+        cv2.imshow("processed", img)
         if cv2.waitKey(0) == ord('q'):
             exit(1)
         cv2.destroyAllWindows()
@@ -42,11 +45,13 @@ def locateTemplate(template, debug=False, mask=None):
     pyautogui.moveTo(top+h/2, left+w/2)
     return x
 
+
 def mustLocateTemplate(template, *args):
     pos = locateTemplate(template, *args)
     if pos == None:
         raise TemplateMatchFailed(template)
     return pos
+
 
 def signIn(meeting_id, password=None, debug=False):
     os.startfile(exe)
@@ -56,6 +61,8 @@ def signIn(meeting_id, password=None, debug=False):
         if pos is not None:
             pyautogui.click(pos)
             break
+    else:
+        return False
     pos = mustLocateTemplate("img/meeting-id.png", debug, "img/meeting-id.png")
     pyautogui.click(pos)
     pyautogui.hotkey('ctrl', 'a')

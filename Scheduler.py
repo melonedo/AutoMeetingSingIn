@@ -3,10 +3,12 @@ from collections import namedtuple
 import re
 from datetime import datetime, timedelta
 import time
-from AutoSignIn import signIn
+from AutoSignIn import signIn, TemplateMatchFailed
 import ctypes
 
+
 Class = namedtuple('Class', 'name teacher start end meetingid password')
+
 
 def load_data() -> list[Class]:
     with open("data/classes.json", encoding='utf-8') as f:
@@ -22,19 +24,26 @@ def load_data() -> list[Class]:
         result.append(Class(m[1], m[2], start, end, m[3], m[4]))
     return result
 
+
 def get_next_class(classes: list[Class], time=datetime.now()):
     not_ended = (c for c in classes if c.end > time)
     return min(not_ended, key=lambda x: x.start)
 
+
 def schedule(c: Class):
     if dialog:
-        key = ctypes.windll.user32.MessageBoxW(0, "确认后请勿操作键盘和鼠标", f"是否登录腾讯会议〔{c.name}〕", 1)
+        key = ctypes.windll.user32.MessageBoxW(
+            0, "确认后请勿操作键盘和鼠标。可在配置中将dialog设为false避免弹出此对话框。", f"是否进入会议会议〔{c.name}〕", 1)
         if key != 1:
             return False
-    return signIn(c.meetingid, c.password)
- 
-def schedule_next_class(classes: list[Class]):
-    c = get_next_class(classes)
+    try:
+        return signIn(c.meetingid, c.password)
+    except TemplateMatchFailed:
+        return False
+
+
+def schedule_next_class(classes: list[Class], end_time=None):
+    c = get_next_class(classes, end_time)
     time_str = c.start.strftime("%m月%d日(星期%w) %H:%M")
     print(f"下一节课是：{c.name}「{c.teacher}」 {time_str}")
     print(f"会议号：{c.meetingid} 密码：{c.password}")
@@ -44,13 +53,16 @@ def schedule_next_class(classes: list[Class]):
         time.sleep(30)
     while not schedule(c):
         time.sleep(30)
+    return c.end
 
-classes = load_data()
 
 with open("data/config.json", encoding='utf-8') as f:
     config = json.load(f)
     dialog = config['dialog']
 
+
+classes = load_data()
+end_time = datetime.now()
 while True:
-    schedule_next_class(classes)
-    time.sleep(100*60)
+    end_time = schedule_next_class(classes, end_time)
+
