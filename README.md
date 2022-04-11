@@ -31,6 +31,7 @@ pipenv shell
 配置好`data/config.json`后，运行下列指令导入下一个月的课程表。
 
 ```shell
+git submodule update --init
 python FetchCalendar.py
 ```
 
