@@ -1,75 +1,91 @@
-# author: skywoodsz
-
 import os
-import pandas as pd
 import pyautogui
 import time
 from datetime import datetime
 import cv2
-'''
-	利用opencv模板匹配进行入会像素坐标获取，执行鼠标相应动作与密码验证存在判断
-	@param tempFile: 模板匹配图像
-		   whatDo：鼠标执行动作
-		   debug： debug
-'''
-def ImgAutoClick(tempFile, whatDo, debug=False):
+import pyperclip
+import json
+
+class TemplateMatchFailed(Exception):
+    pass
+
+
+def locateTemplate(template, debug=False, mask=None):
     pyautogui.screenshot('screen.png')
-    gray = cv2.imread('screen.png', 0)
-    img_templete = cv2.imread(tempFile, 0)
-    w, h = img_templete.shape[::-1]
-    res = cv2.matchTemplate(gray, img_templete, cv2.TM_SQDIFF)
+    gray = cv2.imread('screen.png')
+    img_template = cv2.imread(template)
+    img_mask = None if mask is None else cv2.imread(mask)
+    h, w = img_template.shape[0:2]
+    res = cv2.matchTemplate(gray, img_template, cv2.TM_SQDIFF_NORMED, mask=img_mask)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
     top = min_loc[0]
     left = min_loc[1]
     x = [top, left, w, h]
     top_left = min_loc
     bottom_right = (top_left[0] + w, top_left[1] + h)
-    pyautogui.moveTo(top+h/2, left+w/2)
-    if(min_val < 1000):
-        whatDo(x)
-    else:
-        return False
 
     if debug:
         img = cv2.imread("screen.png",1)
+        os.remove("screen.png")
         cv2.rectangle(img,top_left, bottom_right, (0,0,255), 2)
         img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_NEAREST)
         cv2.imshow("processed",img)
-        cv2.waitKey(0)
+        if cv2.waitKey(0) == ord('q'):
+            exit(1)
         cv2.destroyAllWindows()
-    os.remove("screen.png")
-    
-    return True
 
-'''
-	会议自动登录
-	@param meeting_id: 会议号
-		   password：密码，若则保持默认NULL
-'''
-def SignIn(meeting_id, password=NULL):
-    os.startfile("D:\gongju\wemeetapp.exe")
-    time.sleep(7)
-    ImgAutoClick("JoinMeeting.png", pyautogui.click, False)
-    time.sleep(1)
-    ImgAutoClick("meeting_id.png", pyautogui.click, False)
-    time.sleep(2)
+    if min_val > 0.01:
+        print(min_val)
+        return None
+
+    pyautogui.moveTo(top+h/2, left+w/2)
+    return x
+
+def mustLocateTemplate(template, *args):
+    pos = locateTemplate(template, *args)
+    if pos == None:
+        raise TemplateMatchFailed(template)
+    return pos
+
+def signIn(meeting_id, password=None, debug=False):
+    os.startfile(exe)
+    time.sleep(5)
+    pos = mustLocateTemplate("img/start.png", debug)
+    pyautogui.click(pos)
+    # Cursor automatically focused to meeting id
     pyautogui.write(meeting_id)
-    time.sleep(2)
-    ImgAutoClick("final.png", pyautogui.click, False)
-    time.sleep(1)
-    res = ImgAutoClick("password.png", pyautogui.moveTo, False)
-    if res & password != NULL:
+    pos = mustLocateTemplate("img/nickname.png", debug, "img/nickname.png")
+    pyautogui.click(pos)
+    pyautogui.hotkey('ctrl', 'a')
+    pyautogui.press('backspace')
+    pyperclip.copy(nickname)
+    pyautogui.hotkey('ctrl', 'v')
+    pos = mustLocateTemplate("img/join.png", debug)
+    pyautogui.click(pos)
+    if password is not None:
+        time.sleep(1)
+        # Cursor automatically focused to password
         pyautogui.write(password)
-        time.sleep(1)
-        ImgAutoClick("passwordJoin.png", pyautogui.click, False)
-        time.sleep(1)
+        pos = mustLocateTemplate("img/password-join.png", debug)
+        pyautogui.click(pos)
+    time.sleep(1)
+    pos = locateTemplate('img/not-started.png', debug)
+    if pos is not None:
+        pos = mustLocateTemplate('img/exit.png', debug)
+        pyautogui.click(pos)
+        pos = mustLocateTemplate('img/exit2.png', debug)
+        pyautogui.click(pos)
+        return False
     return True
 
-while True:
-    now = datetime.now().strftime("%m-%d-%H:%M")
-    meeting_id = "xxx xxxx xxxx" # meeting id
-    password = "xxxx" # meeting password
-    if now == "03-30-11:44": # sign in time
-        SignIn(meeting_id, password)
-        print("Sign In!")
-        break
+
+with open("data/config.json", encoding='utf-8') as f:
+    config = json.load(f)
+    exe = config['exe']
+    nickname = config['nickname']
+
+if __name__ == '__main__':
+    meeting_id = "123456789"
+    password = "1234"
+    res = signIn(meeting_id, password, False)
+    print(res)
