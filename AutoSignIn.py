@@ -35,7 +35,8 @@ def locateTemplate(template, debug=False, mask=None):
         cv2.destroyAllWindows()
 
     if min_val > 0.01:
-        print(min_val)
+        if debug:
+            print(min_val)
         return None
 
     pyautogui.moveTo(top+h/2, left+w/2)
@@ -49,10 +50,16 @@ def mustLocateTemplate(template, *args):
 
 def signIn(meeting_id, password=None, debug=False):
     os.startfile(exe)
-    time.sleep(5)
-    pos = mustLocateTemplate("img/start.png", debug)
+    for _ in range(0, 10):
+        time.sleep(.5)
+        pos1 = locateTemplate("img/start.png", debug)
+        if pos1 is not None:
+            pyautogui.click(pos1)
+            break
+    pos = mustLocateTemplate("img/meeting-id.png", debug, "img/meeting-id.png")
     pyautogui.click(pos)
-    # Cursor automatically focused to meeting id
+    pyautogui.hotkey('ctrl', 'a')
+    pyautogui.press('backspace')
     pyautogui.write(meeting_id)
     pos = mustLocateTemplate("img/nickname.png", debug, "img/nickname.png")
     pyautogui.click(pos)

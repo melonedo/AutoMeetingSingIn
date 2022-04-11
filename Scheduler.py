@@ -27,11 +27,12 @@ def get_next_class(classes: list[Class], time=datetime.now()):
     return min(not_ended, key=lambda x: x.start)
 
 def schedule(c: Class):
-    key = ctypes.windll.user32.MessageBoxW(0, f"是否登录腾讯会议〔{c.name}〕", "确认后请勿操作键盘和鼠标", 1)
-    if key == 1:
-        signIn(c.meetingid, c.password)
-    return key == 1
-
+    if dialog:
+        key = ctypes.windll.user32.MessageBoxW(0, "确认后请勿操作键盘和鼠标", f"是否登录腾讯会议〔{c.name}〕", 1)
+        if key != 1:
+            return False
+    return signIn(c.meetingid, c.password)
+ 
 def schedule_next_class(classes: list[Class]):
     c = get_next_class(classes)
     time_str = c.start.strftime("%m月%d日(星期%w) %H:%M")
@@ -45,6 +46,11 @@ def schedule_next_class(classes: list[Class]):
         time.sleep(30)
 
 classes = load_data()
+
+with open("data/config.json", encoding='utf-8') as f:
+    config = json.load(f)
+    dialog = config['dialog']
+
 while True:
     schedule_next_class(classes)
-    time.sleep(60*60)
+    time.sleep(100*60)
