@@ -8,6 +8,8 @@ pyautogui = "*"
 opencv-python = "*"
 pillow = "*"
 pyperclip = "*"
+pycryptodome = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -52,9 +52,9 @@ def signIn(meeting_id, password=None, debug=False):
     os.startfile(exe)
     for _ in range(0, 10):
         time.sleep(.5)
-        pos1 = locateTemplate("img/start.png", debug)
-        if pos1 is not None:
-            pyautogui.click(pos1)
+        pos = locateTemplate("img/start.png", debug)
+        if pos is not None:
+            pyautogui.click(pos)
             break
     pos = mustLocateTemplate("img/meeting-id.png", debug, "img/meeting-id.png")
     pyautogui.click(pos)

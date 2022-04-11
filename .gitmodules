@@ -1,0 +1,3 @@
+[submodule "crackids"]
+	path = crackids
+	url = https://github.com/seashell11234455/crackids.git
