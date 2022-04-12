@@ -7,6 +7,7 @@ import pyperclip
 import json
 from Config import load_config
 
+
 class TemplateMatchFailed(Exception):
     pass
 

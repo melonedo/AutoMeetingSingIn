@@ -10,7 +10,7 @@ config = load_config()
 user_id, password = config['user_id'], config['password']
 
 
-def login(id, pwd):
+def fetch(id=user_id, pwd=password):
     # 验证码
     s = requests.Session()
     code = crack.getCode()
@@ -36,4 +36,5 @@ def login(id, pwd):
     print("成功导入课程表")
 
 
-login(user_id, password)
+if __name__ == '__main__':
+    fetch()

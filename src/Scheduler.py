@@ -6,12 +6,17 @@ import time
 from AutoSignIn import signIn, TemplateMatchFailed
 import ctypes
 from Config import load_config
+from FetchCalendar import fetch
+from os.path import exists
 
 Class = namedtuple('Class', 'name teacher start end meetingid password')
 
 
-def load_data() -> list[Class]:
-    with open("data/classes.json", encoding='utf-8') as f:
+def load_data(path="data/classes.json") -> list[Class]:
+    if not exists(path):
+        print("课程表不存在，尝试导入")
+        fetch()
+    with open(path, encoding='utf-8') as f:
         data = json.load(f)
     result = []
     for c in data['data']:
@@ -60,9 +65,9 @@ def schedule_next_class(classes: list[Class], end_time=None):
 config = load_config()
 dialog = config['dialog']
 
-
-classes = load_data()
-end_time = datetime.now()
-while True:
-    end_time = schedule_next_class(classes, end_time)
+if __name__ == '__main__':
+    classes = load_data()
+    end_time = datetime.now()
+    while True:
+        end_time = schedule_next_class(classes, end_time)
 
