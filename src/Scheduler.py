@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 from AutoSignIn import signIn, TemplateMatchFailed
 import ctypes
-
+from Config import load_config
 
 Class = namedtuple('Class', 'name teacher start end meetingid password')
 
@@ -53,12 +53,12 @@ def schedule_next_class(classes: list[Class], end_time=None):
         time.sleep(30)
     while not schedule(c):
         time.sleep(30)
+    print("成功进入！")
     return c.end
 
 
-with open("data/config.json", encoding='utf-8') as f:
-    config = json.load(f)
-    dialog = config['dialog']
+config = load_config()
+dialog = config['dialog']
 
 
 classes = load_data()

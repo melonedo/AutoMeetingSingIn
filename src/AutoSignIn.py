@@ -5,7 +5,7 @@ from datetime import datetime
 import cv2
 import pyperclip
 import json
-
+from Config import load_config
 
 class TemplateMatchFailed(Exception):
     pass
@@ -93,10 +93,9 @@ def signIn(meeting_id, password=None, debug=False):
     return True
 
 
-with open("data/config.json", encoding='utf-8') as f:
-    config = json.load(f)
-    exe = config['exe']
-    nickname = config['nickname']
+config = load_config()
+exe = config['exe']
+nickname = config['nickname']
 
 if __name__ == '__main__':
     meeting_id = "123456789"

@@ -4,7 +4,7 @@
 
 ## 安装
 
-仅在Windows可用。需要python 3.9，库pyautogui、opencv-python、pillow、pyperclip、requests、pycryptodome。或者可以用pipenv管理
+仅在Windows可用。需要python 3.9，库pyautogui、opencv-python、pillow、pyperclip、requests、pycryptodome。推荐使用pipenv管理
 
 ```shell
 # pip install pipenv
@@ -32,7 +32,7 @@ pipenv shell
 
 ```shell
 git submodule update --init
-python FetchCalendar.py
+python src/FetchCalendar.py # 不使用pipenv时需要注意设置PYTHONPATH=crackids
 ```
 
 ## 运行
@@ -45,5 +45,5 @@ python FetchCalendar.py
 ### 自动开启课程
 
 ```shell
-python Scheduler.py
+python src/Scheduler.py
 ```

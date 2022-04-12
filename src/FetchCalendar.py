@@ -1,14 +1,13 @@
-import sys
-sys.path.append("crackids")
 from datetime import date, timedelta
 from urllib.parse import urlparse, parse_qs
 import json
 import requests
 import crack
+from Config import load_config
 
-with open("data/config.json", encoding='utf-8') as f:
-    config = json.load(f)
-    user_id, password = config['user_id'], config['password']
+
+config = load_config()
+user_id, password = config['user_id'], config['password']
 
 
 def login(id, pwd):
