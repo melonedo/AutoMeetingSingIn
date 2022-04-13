@@ -3,7 +3,7 @@ from collections import namedtuple
 import re
 from datetime import datetime, timedelta
 import time
-from AutoSignIn import signIn, TemplateMatchFailed
+from AutoSignIn import signIn
 import ctypes
 from Config import load_config
 from FetchCalendar import fetch
@@ -16,6 +16,7 @@ def load_data(path="data/classes.json") -> list[Class]:
     if not exists(path):
         print("课程表不存在，尝试导入")
         fetch()
+        print("如果课程表有更新，删除data/classes.json以重新导入课程表。")
     with open(path, encoding='utf-8') as f:
         data = json.load(f)
     result = []
@@ -38,13 +39,10 @@ def get_next_class(classes: list[Class], time=datetime.now()):
 def schedule(c: Class):
     if dialog:
         key = ctypes.windll.user32.MessageBoxW(
-            0, "确认后请勿操作键盘和鼠标。可在配置中将dialog设为false避免弹出此对话框。", f"是否进入会议会议〔{c.name}〕", 1)
+            0, "确认后请勿操作键盘和鼠标。可在配置data/config.json中将dialog设为false避免弹出此对话框。", f"是否进入会议会议〔{c.name}〕", 1)
         if key != 1:
             return False
-    try:
-        return signIn(c.meetingid, c.password)
-    except TemplateMatchFailed:
-        return False
+    return signIn(c.meetingid, c.password)
 
 
 def schedule_next_class(classes: list[Class], end_time=None):

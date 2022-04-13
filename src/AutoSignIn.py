@@ -55,7 +55,7 @@ def mustLocateTemplate(template, *args):
     return pos
 
 
-def signIn(meeting_id, password=None, debug=False):
+def _signIn(meeting_id, password=None, debug=False):
     os.startfile(exe)
     for _ in range(0, 10):
         time.sleep(.5)
@@ -93,6 +93,12 @@ def signIn(meeting_id, password=None, debug=False):
         pyautogui.click(pos)
         return False
     return True
+
+def signIn(*args):
+    try:
+        return _signIn(*args)
+    except TemplateMatchFailed:
+        return False
 
 
 config = load_config()

@@ -10,6 +10,7 @@ pillow = "*"
 pyperclip = "*"
 pycryptodome = "*"
 requests = "*"
+pywinauto = "*"
 
 [dev-packages]
 
