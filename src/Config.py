@@ -1,6 +1,7 @@
 import json
 from os.path import exists
 from textwrap import dedent
+from sys import exit
 
 def load_config(path="data/config.json"):
     if not exists(path):
@@ -11,7 +12,7 @@ def load_config(path="data/config.json"):
                 "nickname": "入会昵称",
                 "dialog": true,
                 "user_id": "学号",
-                "password": "密码"
+                "password": "统一认证密码"
             }
             """))
 

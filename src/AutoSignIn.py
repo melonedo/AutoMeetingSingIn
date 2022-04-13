@@ -6,6 +6,7 @@ import cv2
 import pyperclip
 import json
 from Config import load_config
+from sys import exit
 
 
 class TemplateMatchFailed(Exception):

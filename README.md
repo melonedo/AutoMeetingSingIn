@@ -22,7 +22,7 @@ pipenv shell
     "nickname": "入会昵称",
     "dialog": true,
     "user_id": "学号",
-    "password": "密码"
+    "password": "统一认证密码"
 }
 ```
 
